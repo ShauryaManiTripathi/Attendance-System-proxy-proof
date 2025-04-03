@@ -10,6 +10,14 @@ const {
 } = require('../auth');
 const authController = require('../controllers/authController');
 
+// Middlewares used:
+// - validateRequestBody
+// - validateFacultySignup
+// - validateStudentSignup
+// - validateLoginRequest
+// - facultyLogin
+// - studentLogin
+
 // Faculty routes
 router.post('/faculty/signup', 
   validateRequestBody,

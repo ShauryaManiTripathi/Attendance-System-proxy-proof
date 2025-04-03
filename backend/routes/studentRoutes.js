@@ -4,6 +4,10 @@ const { isStudent } = require('../auth');
 const studentController = require('../controllers/studentController');
 const { validateSelfAttendance } = require('../middlewares');
 
+// Middlewares used:
+// - isStudent (applied to all routes)
+// - validateSelfAttendance (only for the attendance marking endpoint)
+
 // Apply student middleware to all routes
 router.use(isStudent);
 

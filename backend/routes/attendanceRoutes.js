@@ -3,6 +3,11 @@ const router = express.Router();
 const { authenticate, isFaculty, isStudent } = require('../auth');
 const attendanceController = require('../controllers/attendanceController');
 
+// Middlewares used:
+// - authenticate (for all routes)
+// - isFaculty (for faculty-specific routes) 
+// - isStudent (for student-specific routes)
+
 // Routes accessible by both faculty and students
 router.get('/sessions/:id', authenticate, attendanceController.getSessionDetails);
 

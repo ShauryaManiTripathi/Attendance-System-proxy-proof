@@ -5,6 +5,10 @@ const facultyController = require('../controllers/facultyController');
 const attendanceController = require('../controllers/attendanceController');
 const { validateAttendanceData } = require('../middlewares');
 
+// Middlewares used:
+// - isFaculty (applied to all routes)
+// - validateAttendanceData (only for recording attendance)
+
 // Apply faculty middleware to all routes
 router.use(isFaculty);
 

@@ -5,7 +5,7 @@ const passwordUtils = require('./passwordUtils');
 // Try to load bcrypt, but gracefully fall back if it fails
 let bcrypt;
 try {
-  bcrypt = require('bcrypt');
+  bcrypt = require('bcryptjs');
   console.log('bcrypt loaded successfully');
 } catch (error) {
   console.warn('bcrypt module failed to load, using fallback password utilities');
