@@ -34,19 +34,26 @@ const getDashboardData = async (req, res, next) => {
       date: { $gte: today, $lt: tomorrow }
     });
     
-    // Get pending tasks (sessions without attendance records)
-    const sessionsWithoutAttendance = await Session.find({
+    // Get pending tasks (sessions without complete attendance records)
+    const pastSessions = await Session.find({
       faculty: facultyId,
       date: { $lt: new Date() }
     });
     
-    // For each session, check if it has complete attendance records
     const pendingTasks = [];
-    for (const session of sessionsWithoutAttendance) {
+    
+    // For each past session, check if it has complete attendance records
+    for (const session of pastSessions) {
+      // Get all students in the group for this session
       const groupStudents = await GroupStudent.find({ group: session.group });
+      const totalStudents = groupStudents.length;
+      
+      // Get attendance records for this session
       const attendanceRecords = await Attendance.find({ session: session._id });
       
-      if (attendanceRecords.length < groupStudents.length) {
+      // If attendance records are fewer than the number of students,
+      // this session has incomplete attendance
+      if (attendanceRecords.length < totalStudents) {
         pendingTasks.push(session);
       }
     }
@@ -230,7 +237,7 @@ const getSessionById = async (req, res, next) => {
   }
 };
 
-// Get attendance for a specific session
+// Get session attendance
 const getSessionAttendance = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -255,7 +262,9 @@ const getSessionAttendance = async (req, res, next) => {
     
     // Create attendance data combining both
     const attendanceData = groupStudents.map(gs => {
-      const record = attendanceRecords.find(a => a.student.toString() === gs.student._id.toString());
+      const record = attendanceRecords.find(a => 
+        a.student.toString() === gs.student._id.toString()
+      );
       
       return {
         student: {
@@ -277,7 +286,7 @@ const getSessionAttendance = async (req, res, next) => {
 // Record attendance for a session
 const recordAttendance = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params; // session id
     const facultyId = req.faculty._id;
     const { attendanceData } = req.body;
     

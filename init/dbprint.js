@@ -153,18 +153,36 @@ async function printDatabaseContents() {
       }));
     });
 
-    // Print Sessions
+    // Enhance the Sessions printCollection function
     await printCollection("SESSIONS", Session, async () => {
       const sessions = await Session.find().sort({ date: -1 }).populate('course faculty group');
-      return sessions.map(s => ({
-        ID: s._id.toString().substring(0, 6) + '...',
-        Date: formatDate(s.date),
-        Time: `${s.startTime}-${s.endTime}`,
-        Course: s.course.code,
-        Group: s.group.name,
-        Faculty: s.faculty.name.split(' ')[1], // Last name only for space
-        Topic: s.topic ? (s.topic.length > 20 ? s.topic.substring(0, 17) + '...' : s.topic) : ''
+      
+      // For each session, get attendance stats
+      const sessionsWithStats = await Promise.all(sessions.map(async s => {
+        const attendanceRecords = await Attendance.find({ session: s._id });
+        const totalRecords = attendanceRecords.length;
+        const presentCount = attendanceRecords.filter(a => a.status === 'present').length;
+        const absentCount = attendanceRecords.filter(a => a.status === 'absent').length;
+        const lateCount = attendanceRecords.filter(a => a.status === 'late').length;
+        
+        // Get total students in the group
+        const groupStudents = await GroupStudent.find({ group: s.group._id });
+        const totalStudents = groupStudents.length;
+        
+        return {
+          ID: s._id.toString().substring(0, 6) + '...',
+          Date: formatDate(s.date),
+          Time: `${s.startTime}-${s.endTime}`,
+          Course: s.course.code,
+          Group: s.group.name,
+          Faculty: s.faculty.name.split(' ')[1], // Last name only for space
+          Topic: s.topic ? (s.topic.length > 20 ? s.topic.substring(0, 17) + '...' : s.topic) : '',
+          'Attendance': totalStudents === 0 ? 'N/A' : 
+            `${presentCount}P/${lateCount}L/${absentCount}A (${totalRecords}/${totalStudents})`
+        };
       }));
+      
+      return sessionsWithStats;
     });
 
     // Print Attendance
@@ -173,17 +191,18 @@ async function printDatabaseContents() {
         .populate({
           path: 'session',
           populate: [
-            { path: 'course' },
-            { path: 'group' }
+            { path: 'course', select: 'name code' },
+            { path: 'faculty', select: 'name' },
+            { path: 'group', select: 'name' }
           ]
         })
-        .populate('student');
+        .populate('student', 'name rollNumber');
       
       return attendance.map(a => ({
         ID: a._id.toString().substring(0, 6) + '...',
         Date: formatDate(a.session.date),
-        Course: a.session.course.code,
-        Student: a.student.name,
+        Session: `${a.session.course.code} (${a.session.startTime}-${a.session.endTime})`,
+        Student: `${a.student.name} (${a.student.rollNumber})`,
         Status: a.status.toUpperCase(),
         'Recorded': formatDate(a.timestamp, true)
       }));

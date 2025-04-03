@@ -193,35 +193,68 @@ async function createSampleData() {
     faculty: faculty2._id
   });
   
-  // Create sessions
+  // Create sessions (past and upcoming)
   const today = new Date();
-  const session1 = await Session.create({
+  
+  // Past session (yesterday)
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  const pastSession = await Session.create({
+    course: course1._id,
+    faculty: faculty1._id,
+    group: group1._id,
+    date: yesterday,
+    startTime: "09:00",
+    endTime: "10:30",
+    topic: "Variables and Data Types"
+  });
+  
+  // Create attendance records for past session
+  await Attendance.create({
+    session: pastSession._id,
+    student: student1._id,
+    status: "present",
+    timestamp: yesterday
+  });
+  
+  await Attendance.create({
+    session: pastSession._id,
+    student: student2._id,
+    status: "present",
+    timestamp: yesterday
+  });
+  
+  await Attendance.create({
+    session: pastSession._id,
+    student: student3._id,
+    status: "absent",
+    timestamp: yesterday
+  });
+  
+  // Today's session
+  const currentSession = await Session.create({
     course: course1._id,
     faculty: faculty1._id,
     group: group1._id,
     date: today,
     startTime: "09:00",
     endTime: "10:30",
-    topic: "Variables and Data Types"
+    topic: "Control Structures"
   });
   
-  // Create attendance records
-  await Attendance.create({
-    session: session1._id,
-    student: student1._id,
-    status: "present"
-  });
+  // Future session (tomorrow)
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
   
-  await Attendance.create({
-    session: session1._id,
-    student: student2._id,
-    status: "present"
-  });
-  
-  await Attendance.create({
-    session: session1._id,
-    student: student3._id,
-    status: "absent"
+  await Session.create({
+    course: course2._id,
+    faculty: faculty2._id,
+    group: group1._id,
+    date: tomorrow,
+    startTime: "11:00",
+    endTime: "12:30",
+    topic: "Arrays and Linked Lists"
   });
   
   console.log("Sample data created successfully");

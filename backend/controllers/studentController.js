@@ -29,14 +29,19 @@ const getDashboardData = async (req, res, next) => {
       .limit(5)
       .populate('course faculty');
     
-    // Get attendance stats
-    const studentAttendance = await Attendance.find({
-      student: studentId
-    }).populate('session');
-    
-    const totalSessions = await Session.countDocuments({
+    // Get attendance stats for past sessions
+    const pastSessions = await Session.find({
       group: { $in: groupIds },
       date: { $lt: now }
+    });
+    
+    const pastSessionIds = pastSessions.map(session => session._id);
+    const totalSessions = pastSessionIds.length;
+    
+    // Get attendance records for the student
+    const studentAttendance = await Attendance.find({
+      student: studentId,
+      session: { $in: pastSessionIds }
     });
     
     const presentCount = studentAttendance.filter(a => a.status === 'present').length;
