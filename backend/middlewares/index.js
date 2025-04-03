@@ -39,8 +39,47 @@ const notFound = (req, res, next) => {
   next(error);
 };
 
+// Validate attendance data middleware
+const validateAttendanceData = (req, res, next) => {
+  const { sessionId, attendanceData } = req.body;
+  
+  if (!sessionId) {
+    return res.status(400).json({ error: 'Session ID is required' });
+  }
+  
+  if (!attendanceData || !Array.isArray(attendanceData) || attendanceData.length === 0) {
+    return res.status(400).json({ error: 'Attendance data must be a non-empty array' });
+  }
+  
+  // Validate each attendance record
+  for (const record of attendanceData) {
+    if (!record.studentId) {
+      return res.status(400).json({ error: 'Each record must have a studentId' });
+    }
+    
+    if (!record.status || !['present', 'absent', 'late'].includes(record.status)) {
+      return res.status(400).json({ error: 'Status must be present, absent, or late' });
+    }
+  }
+  
+  next();
+};
+
+// Validate self attendance data middleware
+const validateSelfAttendance = (req, res, next) => {
+  const { sessionId } = req.body;
+  
+  if (!sessionId) {
+    return res.status(400).json({ error: 'Session ID is required' });
+  }
+  
+  next();
+};
+
 module.exports = {
   errorHandler,
   requestLogger,
-  notFound
+  notFound,
+  validateAttendanceData,
+  validateSelfAttendance
 };

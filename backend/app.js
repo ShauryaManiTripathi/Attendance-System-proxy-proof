@@ -5,6 +5,7 @@ const { errorHandler, requestLogger, notFound } = require('./middlewares');
 const authRoutes = require('./routes/authRoutes');
 const facultyRoutes = require('./routes/facultyRoutes');
 const studentRoutes = require('./routes/studentRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
 const { authenticate } = require('./auth');
 
 // Create Express app
@@ -24,6 +25,7 @@ app.use(requestLogger);
 app.use('/api/auth', authRoutes);
 app.use('/api/faculty', authenticate, facultyRoutes);
 app.use('/api/student', authenticate, studentRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 // Test route
 app.get('/api/test', (req, res) => {
