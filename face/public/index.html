@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Face Movement (Depth) Liveness Test Demo</title>
+  <!-- Use the UMD bundle of face-api.js -->
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin: 0; padding: 0; }
+    #videoContainer { position: relative; display: inline-block; }
+    video { border: 1px solid #000; }
+    canvas { position: absolute; left: 0; top: 0; }
+    #status { margin-top: 10px; font-size: 1.2em; }
+  </style>
+</head>
+<body>
+  <h1>Face Movement Liveness Test Demo</h1>
+  <div id="videoContainer">
+    <video id="video" width="720" height="560" autoplay muted></video>
+    <canvas id="overlay" width="720" height="560"></canvas>
+  </div>
+  <div id="status">Loading models...</div>
+  <div id="instruction">Please move your head forward or backward.</div>
+
+  <script>
+    const video = document.getElementById('video');
+    const overlay = document.getElementById('overlay');
+    const ctx = overlay.getContext('2d');
+    const statusDiv = document.getElementById('status');
+    const instructionDiv = document.getElementById('instruction');
+
+    let previousBoxWidth = null;
+    const movementThreshold = 15; // pixels difference considered movement
+
+    // Load face-api models from /models folder
+    async function loadModels() {
+      try {
+        await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+        await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+        statusDiv.innerText = "Models Loaded. Please position your face in view.";
+      } catch (err) {
+        console.error("Model loading error:", err);
+        statusDiv.innerText = "Failed to load models.";
+      }
+    }
+
+    // Start the video stream
+    async function startVideo() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        statusDiv.innerText = "Camera API not supported.";
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+        video.srcObject = stream;
+      } catch (error) {
+        console.error("Error accessing webcam:", error);
+        statusDiv.innerText = "Webcam access denied or unavailable.";
+      }
+    }
+
+    // Draw bounding box on canvas
+    function drawBox(box) {
+      ctx.clearRect(0, 0, overlay.width, overlay.height);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "lime";
+      ctx.strokeRect(box.x, box.y, box.width, box.height);
+    }
+
+    // Process each video frame
+    video.addEventListener('play', () => {
+      const displaySize = { width: video.width, height: video.height };
+      faceapi.matchDimensions(overlay, displaySize);
+      setInterval(async () => {
+        const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+        if (detection) {
+          const resizedDetections = faceapi.resizeResults(detection, displaySize);
+          const box = resizedDetections.detection.box;
+          drawBox(box);
+          
+          // Compare current box width to previous measurement
+          if (previousBoxWidth !== null) {
+            const diff = Math.abs(box.width - previousBoxWidth);
+            if (diff > movementThreshold) {
+              instructionDiv.innerText = "Movement detected: Live user.";
+            } else {
+              instructionDiv.innerText = "No movement detected. Please move your head forward or backward.";
+            }
+          }
+          previousBoxWidth = box.width;
+          statusDiv.innerText = "Face Detected.";
+        } else {
+          ctx.clearRect(0, 0, overlay.width, overlay.height);
+          statusDiv.innerText = "No Face Detected.";
+          instructionDiv.innerText = "Please position your face in view and move your head.";
+          previousBoxWidth = null;
+        }
+      }, 200);
+    });
+
+    window.addEventListener('load', () => {
+      loadModels();
+      startVideo();
+    });
+  </script>
+</body>
+</html>
