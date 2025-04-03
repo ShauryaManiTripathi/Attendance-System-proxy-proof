@@ -1,18 +1,46 @@
-// This file will export middleware functions
+// Error handling middleware
+const errorHandler = (err, req, res, next) => {
+  console.error('Error:', err);
+  
+  // Mongoose validation error
+  if (err.name === 'ValidationError') {
+    const errors = Object.values(err.errors).map(e => e.message);
+    return res.status(400).json({ error: errors });
+  }
 
-// Example authentication middleware
-const authenticate = (req, res, next) => {
-  // Authentication logic will go here
+  // MongoDB duplicate key error
+  if (err.code === 11000) {
+    return res.status(409).json({ error: 'Duplicate key error' });
+  }
+
+  // JWT errors are handled in auth middleware
+
+  // Default error response
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Internal server error';
+  
+  res.status(statusCode).json({
+    error: message,
+    stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
+  });
+};
+
+// Request logger middleware
+const requestLogger = (req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.url}`);
   next();
 };
 
-// Example error handler middleware
-const errorHandler = (err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+// Not found middleware
+const notFound = (req, res, next) => {
+  const error = new Error(`Not Found - ${req.originalUrl}`);
+  error.statusCode = 404;
+  next(error);
 };
 
 module.exports = {
-  authenticate,
-  errorHandler
+  errorHandler,
+  requestLogger,
+  notFound
 };
