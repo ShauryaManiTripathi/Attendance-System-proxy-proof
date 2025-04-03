@@ -1,4 +1,14 @@
 const mongoose = require("mongoose");
+const {
+  Faculty,
+  Student,
+  Course,
+  Group,
+  Session,
+  GroupStudent,
+  GroupCourse,
+  Attendance
+} = require('../backend/schemas');
 
 mongoose.connect("mongodb://admin:passwd@localhost:27017/AS?authSource=admin")
 
@@ -9,78 +19,6 @@ mongoose.connection.on("connected", function () {
   mongoose.connection.on("error", function (err) {
     console.log("Error connecting to MongoDB", err);
   });
-
-// Define schemas
-const facultySchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  employeeId: { type: String, required: true, unique: true },
-  department: { type: String, required: true },
-  password: { type: String, required: true }
-});
-
-const studentSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  rollNumber: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
-});
-
-const courseSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  code: { type: String, required: true, unique: true },
-  description: { type: String },
-  credits: { type: Number, required: true }
-});
-
-const groupSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  year: { type: Number, required: true },
-  department: { type: String, required: true }
-});
-
-const sessionSchema = new mongoose.Schema({
-  course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
-  faculty: { type: mongoose.Schema.Types.ObjectId, ref: 'Faculty', required: true },
-  group: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', required: true },
-  date: { type: Date, required: true },
-  startTime: { type: String, required: true },
-  endTime: { type: String, required: true },
-  topic: { type: String }
-});
-
-const groupStudentSchema = new mongoose.Schema({
-  group: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', required: true },
-  student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true }
-});
-
-const groupCourseSchema = new mongoose.Schema({
-  group: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', required: true },
-  course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
-  faculty: { type: mongoose.Schema.Types.ObjectId, ref: 'Faculty', required: true }
-});
-
-const attendanceSchema = new mongoose.Schema({
-  session: { type: mongoose.Schema.Types.ObjectId, ref: 'Session', required: true },
-  student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true },
-  status: { type: String, enum: ['present', 'absent', 'late'], required: true },
-  timestamp: { type: Date, default: Date.now }
-});
-
-// Create models
-const Faculty = mongoose.model('Faculty', facultySchema);
-const Student = mongoose.model('Student', studentSchema);
-const Course = mongoose.model('Course', courseSchema);
-const Group = mongoose.model('Group', groupSchema);
-const Session = mongoose.model('Session', sessionSchema);
-const GroupStudent = mongoose.model('GroupStudent', groupStudentSchema);
-const GroupCourse = mongoose.model('GroupCourse', groupCourseSchema);
-const Attendance = mongoose.model('Attendance', attendanceSchema);
-
-// Add indexes for performance
-groupStudentSchema.index({ group: 1, student: 1 }, { unique: true });
-groupCourseSchema.index({ group: 1, course: 1, faculty: 1 }, { unique: true });
-attendanceSchema.index({ session: 1, student: 1 }, { unique: true });
 
 // Function to drop all collections and reset database
 async function cleanDatabase() {
