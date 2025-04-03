@@ -23,37 +23,39 @@ const StudentDashboard = () => {
     switch (activeSection) {
       case 'overview':
         return (
-          <div className="dashboard-content-section">
-            <h2>Welcome, {currentUser?.name}</h2>
+          <div className="space-y-6">
+            <h2 className="text-2xl font-semibold">Welcome, {currentUser?.name}</h2>
             <div className="dashboard-cards">
               <div className="dashboard-card">
-                <h3>Courses</h3>
+                <h3 className="text-gray-500 text-base font-medium">Courses</h3>
                 <p className="dashboard-stat">4</p>
               </div>
               <div className="dashboard-card">
-                <h3>Upcoming Sessions</h3>
+                <h3 className="text-gray-500 text-base font-medium">Upcoming Sessions</h3>
                 <p className="dashboard-stat">2</p>
               </div>
               <div className="dashboard-card">
-                <h3>Attendance Rate</h3>
+                <h3 className="text-gray-500 text-base font-medium">Attendance Rate</h3>
                 <p className="dashboard-stat">95%</p>
               </div>
               <div className="dashboard-card">
-                <h3>Missed Sessions</h3>
+                <h3 className="text-gray-500 text-base font-medium">Missed Sessions</h3>
                 <p className="dashboard-stat">1</p>
               </div>
             </div>
             <div className="dashboard-schedule">
-              <h3>Today's Schedule</h3>
-              <p>No classes scheduled for today.</p>
+              <h3 className="font-medium">Today's Schedule</h3>
+              <p className="text-gray-600">No classes scheduled for today.</p>
             </div>
           </div>
         );
       default:
         return (
-          <div className="dashboard-content-section">
-            <h2>{activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}</h2>
-            <p>This section is under development.</p>
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold">
+              {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}
+            </h2>
+            <p className="text-gray-600">This section is under development.</p>
           </div>
         );
     }

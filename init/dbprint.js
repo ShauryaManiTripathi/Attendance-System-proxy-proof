@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 // Connect to MongoDB
-mongoose.connect("mongodb://admin:passwd@localhost:27017/AS?authSource=admin")
+mongoose.connect("mongodb+srv://leoosarah:QDH4wpYoAz0wdnHo@attend.iviwm.mongodb.net/AS?retryWrites=true&w=majority&appName=attend")
   .then(() => {
     console.log("Connected to MongoDB");
     printDatabaseContents();

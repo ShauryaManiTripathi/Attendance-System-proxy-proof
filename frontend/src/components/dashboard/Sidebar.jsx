@@ -1,46 +1,38 @@
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Sidebar = ({ items }) => {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  const { logout, currentUser } = useAuth();
 
   return (
-    <div className="sidebar">
+    <nav className="sidebar">
       <div className="sidebar-header">
-        <h3>Attendance System</h3>
+        <h2 className="text-xl font-bold text-white m-0">Attendance System</h2>
+        <p className="text-sm text-white/80 mt-1">v1.0</p>
       </div>
       
-      <nav className="sidebar-nav">
-        <ul>
+      <div className="sidebar-nav">
+        <ul className="list-none p-0">
           {items.map((item, index) => (
             <li key={index}>
-              <button 
-                className="sidebar-link" 
-                onClick={() => navigate(item.path)}
-              >
-                {item.icon && <span className="sidebar-icon">{item.icon}</span>}
+              <a href={item.path} className="sidebar-link">
+                <span className="sidebar-icon">{item.icon}</span>
                 {item.label}
-              </button>
+              </a>
             </li>
           ))}
         </ul>
-      </nav>
+      </div>
       
       <div className="sidebar-footer">
-        <button 
-          className="logout-button" 
-          onClick={handleLogout}
-        >
+        <div className="mb-4 text-sm">
+          <p className="m-0 text-white/90">Logged in as:</p>
+          <p className="m-0 font-semibold">{currentUser?.name}</p>
+        </div>
+        <button className="logout-button" onClick={logout}>
           Logout
         </button>
       </div>
-    </div>
+    </nav>
   );
 };
 

@@ -5,11 +5,13 @@ const Header = ({ title }) => {
 
   return (
     <header className="dashboard-header">
-      <h1>{title}</h1>
+      <h1 className="text-2xl font-bold m-0">{title}</h1>
       
-      <div className="user-info">
-        <span className="user-name">{currentUser?.name}</span>
-        <span className="user-role">{currentUser?.role === 'faculty' ? 'Faculty' : 'Student'}</span>
+      <div className="user-info text-right">
+        <span className="user-name font-medium block">{currentUser?.name}</span>
+        <span className="user-role text-sm text-gray-500 block">
+          {currentUser?.role === 'faculty' ? 'Faculty' : 'Student'}
+        </span>
       </div>
     </header>
   );
