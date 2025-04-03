@@ -1,79 +1,134 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { facultyApi } from '../services/ApiService';
 import { useAuth } from '../contexts/AuthContext';
-import Header from '../components/dashboard/Header';
-import Sidebar from '../components/dashboard/Sidebar';
+import FacultyNavbar from '../components/FacultyNavbar';
+import SessionModal from '../components/SessionModal';
 
 const FacultyDashboard = () => {
   const { currentUser } = useAuth();
-  const [activeSection, setActiveSection] = useState('overview');
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showSessionModal, setShowSessionModal] = useState(false);
 
   useEffect(() => {
-    document.title = 'Faculty Dashboard - Attendance System';
+    const fetchDashboardData = async () => {
+      try {
+        const response = await facultyApi.getDashboard();
+        setDashboardData(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to load dashboard data');
+        console.error(err);
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
   }, []);
 
-  const sidebarItems = [
-    { label: 'Dashboard', path: '#overview', icon: '📊' },
-    { label: 'Courses', path: '#courses', icon: '📚' },
-    { label: 'Sessions', path: '#sessions', icon: '📅' },
-    { label: 'Attendance', path: '#attendance', icon: '✓' },
-    { label: 'Students', path: '#students', icon: '👥' },
-    { label: 'Reports', path: '#reports', icon: '📝' },
-    { label: 'Settings', path: '#settings', icon: '⚙️' }
-  ];
-
-  const renderContent = () => {
-    switch (activeSection) {
-      case 'overview':
-        return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-semibold">Welcome, {currentUser?.name}</h2>
-            <div className="dashboard-cards">
-              <div className="dashboard-card">
-                <h3 className="text-gray-500 text-base font-medium">Courses</h3>
-                <p className="dashboard-stat">5</p>
-              </div>
-              <div className="dashboard-card">
-                <h3 className="text-gray-500 text-base font-medium">Students</h3>
-                <p className="dashboard-stat">120</p>
-              </div>
-              <div className="dashboard-card">
-                <h3 className="text-gray-500 text-base font-medium">Sessions Today</h3>
-                <p className="dashboard-stat">3</p>
-              </div>
-              <div className="dashboard-card">
-                <h3 className="text-gray-500 text-base font-medium">Pending Tasks</h3>
-                <p className="dashboard-stat">2</p>
-              </div>
-            </div>
-            <div className="dashboard-recent">
-              <h3 className="font-medium">Recent Activity</h3>
-              <p className="text-gray-600">No recent activity to display.</p>
-            </div>
-          </div>
-        );
-      default:
-        return (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold">
-              {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}
-            </h2>
-            <p className="text-gray-600">This section is under development.</p>
-          </div>
-        );
-    }
-  };
+  if (loading) return <div className="loading">Loading dashboard...</div>;
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
-    <div className="dashboard-container">
-      <Sidebar items={sidebarItems} />
-      
-      <div className="dashboard-main">
-        <Header title="Faculty Dashboard" />
-        
-        <div className="dashboard-content">
-          {renderContent()}
+    <div className="faculty-dashboard">
+      <FacultyNavbar />
+      <div className="dashboard-container">
+        <div className="dashboard-header">
+          <h1>Welcome, {currentUser?.name || 'Faculty'}</h1>
+          <button 
+            className="create-session-btn"
+            onClick={() => setShowSessionModal(true)}
+          >
+            Create New Session
+          </button>
+        </div>
+
+        <div className="dashboard-stats">
+          <div className="stat-card">
+            <h3>Total Courses</h3>
+            <div className="stat-value">{dashboardData?.courses || 0}</div>
+          </div>
+          <div className="stat-card">
+            <h3>Active Sessions</h3>
+            <div className="stat-value">{dashboardData?.activeSessions || 0}</div>
+          </div>
+          <div className="stat-card">
+            <h3>Total Students</h3>
+            <div className="stat-value">{dashboardData?.totalStudents || 0}</div>
+          </div>
+          <div className="stat-card">
+            <h3>Average Attendance</h3>
+            <div className="stat-value">{dashboardData?.averageAttendance || '0%'}</div>
+          </div>
+        </div>
+
+        <div className="dashboard-sections">
+          <div className="section">
+            <div className="section-header">
+              <h2>Upcoming Sessions</h2>
+              <Link to="/faculty/sessions" className="view-all">View All</Link>
+            </div>
+            <div className="sessions-list">
+              {dashboardData?.upcomingSessions?.length > 0 ? (
+                dashboardData.upcomingSessions.map(session => (
+                  <div className="session-card" key={session.id}>
+                    <div className="session-info">
+                      <h3>{session.course}</h3>
+                      <p className="session-date">
+                        {new Date(session.date).toLocaleDateString()} • {session.time}
+                      </p>
+                      <p className="session-topic">{session.topic}</p>
+                    </div>
+                    <Link to={`/faculty/sessions/${session.id}`} className="btn-view">
+                      View
+                    </Link>
+                  </div>
+                ))
+              ) : (
+                <p className="no-data">No upcoming sessions</p>
+              )}
+            </div>
+          </div>
+
+          <div className="section">
+            <div className="section-header">
+              <h2>Recent Courses</h2>
+              <Link to="/faculty/courses" className="view-all">View All</Link>
+            </div>
+            <div className="courses-list">
+              {dashboardData?.recentCourses?.length > 0 ? (
+                dashboardData.recentCourses.map(course => (
+                  <div className="course-card" key={course.id}>
+                    <div className="course-info">
+                      <h3>{course.name}</h3>
+                      <p>{course.code}</p>
+                      <p>{course.students} students</p>
+                    </div>
+                    <Link to={`/faculty/courses/${course.id}`} className="btn-view">
+                      View
+                    </Link>
+                  </div>
+                ))
+              ) : (
+                <p className="no-data">No courses available</p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
+
+      {showSessionModal && (
+        <SessionModal 
+          onClose={() => setShowSessionModal(false)} 
+          onSuccess={() => {
+            setShowSessionModal(false);
+            // Refresh dashboard data
+            facultyApi.getDashboard().then(res => setDashboardData(res.data));
+          }}
+        />
+      )}
     </div>
   );
 };

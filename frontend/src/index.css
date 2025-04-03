@@ -76,6 +76,115 @@
     @apply flex-1 p-6 rounded-lg bg-blue-50 flex flex-col items-center border-2 border-transparent transition-all hover:border-primary hover:bg-blue-100;
   }
 
+  /* Student Course Details */
+  .student-course-details-page {
+    @apply bg-gray-50 min-h-screen pb-12;
+  }
+
+  .container {
+    @apply max-w-5xl mx-auto px-4 md:px-6 pt-6;
+  }
+
+  .page-header {
+    @apply mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4;
+  }
+
+  .btn-back {
+    @apply w-auto bg-transparent text-gray-600 hover:text-primary flex items-center gap-2 py-2 px-0 hover:underline transition-colors;
+  }
+
+  .course-details {
+    @apply space-y-6;
+  }
+
+  .course-info-card {
+    @apply bg-white rounded-xl shadow-card p-6 overflow-hidden;
+  }
+
+  .course-header {
+    @apply flex justify-between items-center pb-4 border-b border-gray-100;
+  }
+
+  .course-code {
+    @apply text-lg font-semibold text-primary;
+  }
+
+  .course-credits {
+    @apply text-gray-500 font-medium bg-gray-50 py-1 px-3 rounded-full text-sm;
+  }
+
+  .course-description {
+    @apply py-4 border-b border-gray-100;
+  }
+
+  .course-description p {
+    @apply text-gray-600 mt-2;
+  }
+
+  .course-info {
+    @apply py-4 border-b border-gray-100 space-y-2;
+  }
+
+  .course-info p {
+    @apply text-gray-700;
+  }
+
+  .attendance-summary {
+    @apply pt-4;
+  }
+
+  .attendance-stats {
+    @apply grid grid-cols-2 md:grid-cols-5 gap-4 my-4;
+  }
+
+  .stat {
+    @apply bg-gray-50 rounded-lg p-4 text-center transition-transform hover:transform hover:scale-105;
+  }
+
+  .stat-value {
+    @apply text-2xl font-bold text-primary-dark;
+  }
+
+  .stat-label {
+    @apply text-sm text-gray-600 mt-1;
+  }
+
+  .attendance-percentage {
+    @apply mt-4 flex items-center gap-4;
+  }
+
+  .progress-bar {
+    @apply flex-1 h-3 bg-gray-200 rounded-full overflow-hidden;
+  }
+
+  .progress {
+    @apply h-full rounded-full transition-all duration-500;
+  }
+
+  .percentage-value {
+    @apply text-xl font-semibold min-w-[60px] text-right;
+  }
+
+  .course-actions {
+    @apply flex flex-col sm:flex-row gap-4;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white rounded-lg py-3 px-6 text-center font-medium hover:bg-primary-dark transition-colors flex-1 inline-block;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-primary border border-primary rounded-lg py-3 px-6 text-center font-medium hover:bg-gray-50 transition-colors flex-1 inline-block;
+  }
+
+  .loading {
+    @apply flex items-center justify-center h-64 text-lg text-gray-600;
+  }
+
+  .error-container {
+    @apply bg-white rounded-xl shadow-card p-8 max-w-lg mx-auto mt-10 text-center;
+  }
+
   /* Dashboard Layout */
   .dashboard-container {
     @apply flex min-h-screen;

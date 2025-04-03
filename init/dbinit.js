@@ -347,7 +347,7 @@ async function displayCollections() {
 // Main function to initialize database
 async function initializeDatabase() {
   try {
-    await cleanDatabase();
+    //await cleanDatabase();
     await createSampleData();
     await displayCollections();
     console.log("Database initialization completed successfully");

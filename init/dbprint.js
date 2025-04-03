@@ -92,6 +92,7 @@ async function printDatabaseContents() {
         ID: f._id.toString().substring(0, 6) + '...',
         Name: f.name,
         Email: f.email,
+        Passowrd: f.password,
         'Employee ID': f.employeeId,
         Department: f.department
       }));
