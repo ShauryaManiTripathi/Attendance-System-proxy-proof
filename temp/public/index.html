@@ -4,10 +4,11 @@
   <meta charset="UTF-8">
   <title>Face Recognition Demo</title>
   <style>
+    /* Simple styling */
     #video {
-      position: relative;
       width: 640px;
       height: 480px;
+      background: #000;
     }
     canvas {
       position: absolute;
@@ -19,50 +20,14 @@
 <body>
   <h1>Face Recognition Demo</h1>
   <div style="position: relative; display: inline-block;">
-    <video id="video" width="640" height="480" autoplay muted></video>
+    <video id="video" autoplay muted playsinline></video>
     <canvas id="overlay"></canvas>
   </div>
 
-  <!-- Load TensorFlow.js and face-api.js -->
+  <!-- Load TensorFlow.js and face-api.js libraries -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
   <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
-  <script>
-    // Load models from /models directory (ensure you copy them there)
-    Promise.all([
-      faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
-      faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-      faceapi.nets.faceRecognitionNet.loadFromUri('/models')
-    ]).then(startVideo);
-
-    function startVideo() {
-      const video = document.getElementById('video');
-      navigator.mediaDevices.getUserMedia({ video: {} })
-        .then(stream => video.srcObject = stream)
-        .catch(err => console.error("Error accessing webcam:", err));
-    }
-
-    document.getElementById('video').addEventListener('play', () => {
-      const video = document.getElementById('video');
-      const canvas = document.getElementById('overlay');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const displaySize = { width: video.videoWidth, height: video.videoHeight };
-      
-      setInterval(async () => {
-        const detections = await faceapi
-          .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
-          .withFaceLandmarks()
-          .withFaceDescriptors();
-        // Resize the results
-        const resizedDetections = faceapi.resizeResults(detections, displaySize);
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // Draw detection boxes and landmarks
-        faceapi.draw.drawDetections(canvas, resizedDetections);
-        faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
-        // Here you could add a comparison with stored embeddings to verify identity.
-      }, 100);
-    });
-  </script>
+  <!-- Load our custom script -->
+  <script src="index.js"></script>
 </body>
 </html>
